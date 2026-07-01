@@ -1,0 +1,88 @@
+spring:
+  application:
+    name: gonggong
+
+  config:
+    import: optional:file:env/local.env[.properties]
+
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/gonggong}
+    username: ${DB_USER:gonggong}
+    password: ${DB_PASSWORD:}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY:}
+      embedding:
+        model: ${OPENAI_EMBEDDING_MODEL:text-embedding-3-small}
+    vectorstore:
+      pgvector:
+        initialize-schema: true
+        schema-name: public
+        table-name: hsk_vector_store
+        index-type: HNSW
+        distance-type: COSINE_DISTANCE
+        dimensions: 1536
+        max-document-batch-size: 100
+
+public-data:
+  safety-korea:
+    api-key: ${SAFETY_KOREA_API_KEY:}
+    api-url: ${SAFETY_KOREA_API_URL:https://www.safetykorea.kr/release/openapi}
+    recall-list-url: ${SAFETY_KOREA_RECALL_LIST_URL:https://www.safetykorea.kr/openapi/api/recall/recallList.json}
+    recall-detail-url: ${SAFETY_KOREA_RECALL_DETAIL_URL:https://www.safetykorea.kr/openapi/api/recall/recallDetail.json}
+    foreign-recall-list-url: ${SAFETY_KOREA_FOREIGN_RECALL_LIST_URL:https://www.safetykorea.kr/openapi/api/recall/fRecallList.json}
+    certification-list-url: ${SAFETY_KOREA_CERTIFICATION_LIST_URL:https://www.safetykorea.kr/openapi/api/cert/certificationList.json}
+  customs:
+    api-key: ${CUSTOMS_API_KEY:}
+    unipass-url: ${UNIPASS_URL:https://unipass.customs.go.kr/}
+    confirmation:
+      api-url: ${CUSTOMS_CONFIRMATION_API_URL:}
+      service-key: ${CUSTOMS_CONFIRMATION_SERVICE_KEY:${CUSTOMS_API_KEY:}}
+      service-key-param-name: ${CUSTOMS_CONFIRMATION_SERVICE_KEY_PARAM:serviceKey}
+      hsk-code-param-name: ${CUSTOMS_CONFIRMATION_HSK_CODE_PARAM:hsSgn}
+      import-export-code-param-name: ${CUSTOMS_CONFIRMATION_IMPORT_EXPORT_CODE_PARAM:imexTp}
+      import-code: ${CUSTOMS_CONFIRMATION_IMPORT_CODE:I}
+  chemical:
+    service-key: ${CHEMICAL_API_KEY:}
+    api-url: ${CHEMICAL_API_URL:https://apis.data.go.kr/B552584/kecoapi/ncissbstn/chemSbstnList}
+    search-type-param-name: ${CHEMICAL_SEARCH_TYPE_PARAM_NAME:searchGubun}
+    search-name-param-name: ${CHEMICAL_SEARCH_NAME_PARAM_NAME:searchNm}
+    response-type-param-name: ${CHEMICAL_RESPONSE_TYPE_PARAM_NAME:returnType}
+    response-type: ${CHEMICAL_RESPONSE_TYPE:JSON}
+    page-size: ${CHEMICAL_API_PAGE_SIZE:100}
+    timeout: ${CHEMICAL_API_TIMEOUT:3s}
+    concurrency: ${CHEMICAL_API_CONCURRENCY:4}
+    search-url: ${CHEMICAL_SEARCH_URL:https://icis.mcee.go.kr/}
+    search-button-text: ${CHEMICAL_SEARCH_BUTTON_TEXT:화학 물질 종합정보시스템에서 직접 성분 검색하기}
+
+external-links:
+  product-safety-center-url: ${PRODUCT_SAFETY_CENTER_URL:https://www.safetykorea.kr/}
+
+openai:
+  api-key: ${OPENAI_API_KEY:}
+  model: ${OPENAI_MODEL:gpt-5.5}
+  responses-api-url: ${OPENAI_RESPONSES_API_URL:https://api.openai.com/v1/responses}
+
+hsk:
+  dataset:
+    initialize: ${HSK_DATASET_INITIALIZE:true}
+    resource: ${HSK_DATASET_RESOURCE:classpath:data/customs-hsk-items-20260101.xlsx}
+  embedding:
+    initialize: ${HSK_EMBEDDING_INITIALIZE:true}
+    batch-size: ${HSK_EMBEDDING_BATCH_SIZE:100}
+
+tariff:
+  dataset:
+    initialize: ${TARIFF_DATASET_INITIALIZE:true}
+    resource: ${TARIFF_DATASET_RESOURCE:classpath:data/customs-tariff-rates-20260211.xlsx}

@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Risk card preview</title>
+  <link rel="stylesheet" href="overlay.css">
+  <style>
+    body {
+      margin: 0;
+      padding: 32px;
+      background: #eef2f7;
+      font-family: Arial, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    .isg-risk-grid {
+      max-width: 920px;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+<body>
+  <main class="isg-risk-grid" id="preview"></main>
+  <script src="risk-view.js"></script>
+  <script>
+    document.getElementById("preview").innerHTML = RiskView.customsRiskCardHtml({
+      status: "SAFE",
+      tariffType: "WTO",
+      finalTariffRate: 13,
+      message: "근거: 관세청_품목번호별 관세율표_20260211 (공공데이터포털 15051179), 관세율구분=WTO 세율(C) 실제 적용 세율은 원산지 증명과 세관 판단에 따라 달라질 수 있습니다."
+    });
+  </script>
+</body>
+</html>

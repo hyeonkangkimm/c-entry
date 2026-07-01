@@ -1,0 +1,32 @@
+{
+  "manifest_version": 3,
+  "name": "Import Safety Guard",
+  "description": "해외직구 상품 페이지를 분석해 리콜/위해 위험도를 표시합니다.",
+  "version": "0.1.0",
+  "permissions": [
+    "tabs"
+  ],
+  "action": {
+    "default_title": "Import Safety Guard",
+    "default_popup": "popup.html"
+  },
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.aliexpress.com/*",
+        "*://*.temu.com/*"
+      ],
+      "js": ["brand-view.js", "seller-view.js", "risk-price.js", "risk-view.js", "content.js"],
+      "css": ["overlay.css"],
+      "run_at": "document_idle"
+    }
+  ],
+  "host_permissions": [
+    "*://*.aliexpress.com/*",
+    "*://*.temu.com/*",
+    "http://localhost:8080/*"
+  ]
+}
