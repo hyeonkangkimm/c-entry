@@ -1,6 +1,17 @@
 # C-Entry (공공데이터활용 공모전)
 
+---
+
 시연 영상 : https://www.youtube.com/watch?v=pFe4ByYzjyY
+
+---
+<img width="1252" height="701" alt="캡1" src="https://github.com/user-attachments/assets/a907462c-1ec3-429a-ba9b-24231164b731" />
+<img width="1252" height="706" alt="캡2" src="https://github.com/user-attachments/assets/3fa2d02a-933e-4c59-a9e4-bb8266352a2e" />
+<img width="1247" height="702" alt="캡3" src="https://github.com/user-attachments/assets/f9e04598-9814-47a3-a832-b7d5c4f891dc" />
+<img width="1253" height="693" alt="캡4" src="https://github.com/user-attachments/assets/b33b0fcd-aa4f-4d45-8f58-0084601a8788" />
+<img width="1252" height="687" alt="캡5" src="https://github.com/user-attachments/assets/5cad0fda-3ec6-445b-8655-284d9e044efe" />
+
+
 
 해외 직구 상품의 수입 가능성과 안전 리스크를 분석하는 Spring Boot 기반 백엔드와 Chrome 확장 프로그램입니다. 쇼핑몰 상품 페이지에서 상품명, 설명, 이미지, 판매자 정보 등을 수집하고, 서버에서 HSK 코드 후보, KC 인증, 리콜 이력, 화학물질 규제, 관세 정보를 종합해 구매 전 확인해야 할 위험 요소를 보여줍니다. 백엔드는 AWS 클라우드 환경에 배포해 외부에서도 API를 호출할 수 있도록 구성했습니다.
 
