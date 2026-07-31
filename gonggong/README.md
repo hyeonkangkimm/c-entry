@@ -1,6 +1,6 @@
 # Gonggong
 
-해외 직구 상품의 수입 가능성과 안전 리스크를 분석하는 Spring Boot 기반 백엔드와 Chrome 확장 프로그램입니다. 쇼핑몰 상품 페이지에서 상품명, 설명, 이미지, 판매자 정보 등을 수집하고, 서버에서 HSK 코드 후보, KC 인증, 리콜 이력, 화학물질 규제, 관세 정보를 종합해 구매 전 확인해야 할 위험 요소를 보여줍니다.
+해외 직구 상품의 수입 가능성과 안전 리스크를 분석하는 Spring Boot 기반 백엔드와 Chrome 확장 프로그램입니다. 쇼핑몰 상품 페이지에서 상품명, 설명, 이미지, 판매자 정보 등을 수집하고, 서버에서 HSK 코드 후보, KC 인증, 리콜 이력, 화학물질 규제, 관세 정보를 종합해 구매 전 확인해야 할 위험 요소를 보여줍니다. 백엔드는 AWS 클라우드 환경에 배포해 외부에서도 API를 호출할 수 있도록 구성했습니다.
 
 ## 주요 기능
 
@@ -13,7 +13,7 @@
 - KC 인증 및 리콜 확인
   - Safety Korea 공개 API를 통해 인증 정보와 리콜 이력을 조회하고 상품 위험도를 계산합니다.
 - 화학물질 규제 분석
-  - 성분 후보와 공공 화학물질 API, 로컬 규제 룰을 이용해 제한/금지 성분 여부를 확인합니다.
+  - 성분 후보와 공공 화학물질 API, YAML 기반 규제 룰을 이용해 제한/금지 성분 여부를 확인합니다.
 - Chrome 확장 프로그램
   - AliExpress, Temu 상품 페이지에 오버레이를 삽입해 분석 결과를 바로 확인할 수 있습니다.
 
@@ -27,7 +27,7 @@
 | Data | Apache POI, QueryDSL, YAML rule repository |
 | Extension | Chrome Extension Manifest V3, JavaScript, CSS |
 | Test | JUnit 5, Spring Boot Test, H2 |
-| Infra | Docker Compose, pgvector/pgvector:pg16 |
+| Infra | AWS Cloud, Docker Compose, pgvector/pgvector:pg16 |
 
 ## 프로젝트 구조
 
@@ -46,29 +46,26 @@
 │   └── chemical-regulation-rules.yaml
 ├── extension              # Chrome 확장 프로그램
 ├── docker/postgres/init   # pgvector 확장 초기화 SQL
-└── env                    # 로컬 환경변수 예시 및 로컬 설정
+└── env                    # 환경변수 예시
 ```
 
-## 시작하기
+## 배포 환경
 
-### 1. 요구 사항
+백엔드는 AWS 클라우드 환경에 배포되어 있으며, Chrome 확장 프로그램과 외부 클라이언트는 배포된 API 서버를 호출하는 구조입니다.
+
+### 주요 구성
 
 - Java 17
-- Docker Desktop 또는 Docker Compose
+- Spring Boot API Server
+- PostgreSQL + pgvector
 - OpenAI API Key
 - Safety Korea, 관세청, 화학물질 공공 API Key
 
 일부 외부 API 키가 비어 있어도 애플리케이션은 실행할 수 있지만, 해당 API를 사용하는 분석 결과는 제한될 수 있습니다.
 
-### 2. 환경변수 설정
+### 환경변수
 
-`env/.env.example`을 `env/local.env`로 복사한 뒤 필요한 값을 채웁니다.
-
-```bash
-cp env/.env.example env/local.env
-```
-
-주요 환경변수:
+`env/.env.example`에는 배포 환경에서 필요한 설정 항목 예시가 정리되어 있습니다.
 
 | 변수 | 설명 |
 | --- | --- |
@@ -82,31 +79,7 @@ cp env/.env.example env/local.env
 | `CHEMICAL_API_KEY` | 화학물질 공공 API Key |
 | `HSK_EMBEDDING_INITIALIZE` | 실행 시 HSK 임베딩 초기화 여부 |
 
-### 3. PostgreSQL 실행
-
-```bash
-docker compose up -d
-```
-
-Docker Compose는 `gonggong` 데이터베이스를 생성하고 `vector`, `hstore`, `uuid-ossp` 확장을 활성화합니다.
-
-### 4. 서버 실행
-
-Windows:
-
-```bash
-./gradlew.bat bootRun
-```
-
-macOS/Linux:
-
-```bash
-./gradlew bootRun
-```
-
-기본 서버 주소는 `http://localhost:8080`입니다.
-
-### 5. 테스트
+## 테스트
 
 ```bash
 ./gradlew.bat test
@@ -127,7 +100,7 @@ macOS/Linux:
 ### 상품 분석 예시
 
 ```bash
-curl -X POST http://localhost:8080/api/products/analyze \
+curl -X POST https://<AWS_API_URL>/api/products/analyze \
   -H "Content-Type: application/json" \
   -d '{
     "productName": "Kids wireless night light",
@@ -142,7 +115,7 @@ curl -X POST http://localhost:8080/api/products/analyze \
 ### 리스크 분석 예시
 
 ```bash
-curl -X POST http://localhost:8080/api/v1/risk-dashboard/analyze \
+curl -X POST https://<AWS_API_URL>/api/v1/risk-dashboard/analyze \
   -H "Content-Type: application/json" \
   -d '{
     "hskCode": "9405290000",
@@ -161,12 +134,11 @@ curl -X POST http://localhost:8080/api/v1/risk-dashboard/analyze \
 
 ## Chrome 확장 프로그램 사용
 
-1. 서버를 `http://localhost:8080`에서 실행합니다.
-2. Chrome에서 `chrome://extensions`로 이동합니다.
-3. 개발자 모드를 켭니다.
-4. "압축해제된 확장 프로그램을 로드합니다"를 선택합니다.
-5. 이 저장소의 `extension` 디렉터리를 선택합니다.
-6. AliExpress 또는 Temu 상품 페이지에서 분석 오버레이를 확인합니다.
+1. Chrome에서 `chrome://extensions`로 이동합니다.
+2. 개발자 모드를 켭니다.
+3. "압축해제된 확장 프로그램을 로드합니다"를 선택합니다.
+4. 이 저장소의 `extension` 디렉터리를 선택합니다.
+5. AliExpress 또는 Temu 상품 페이지에서 분석 오버레이를 확인합니다.
 
 확장 프로그램은 현재 다음 페이지에 주입됩니다.
 
@@ -175,7 +147,7 @@ curl -X POST http://localhost:8080/api/v1/risk-dashboard/analyze \
 
 ## 데이터 초기화
 
-애플리케이션 시작 시 다음 데이터를 로컬 리소스에서 읽어 데이터베이스에 적재합니다.
+애플리케이션 시작 시 다음 리소스를 읽어 데이터베이스에 적재합니다.
 
 - HSK 품목 데이터: `src/main/resources/data/customs-hsk-items-20260101.xlsx`
 - 관세율 데이터: `src/main/resources/data/customs-tariff-rates-20260211.xlsx`
@@ -185,8 +157,6 @@ HSK 임베딩 초기화는 `HSK_EMBEDDING_INITIALIZE`로 제어합니다. 최초
 
 ## 개발 메모
 
-- 로컬 비밀값은 `env/local.env`에 보관하고 Git에 커밋하지 않습니다.
-- PostgreSQL 기본 계정은 Docker Compose 기준 `gonggong/gonggong`입니다.
 - 테스트는 `src/test/resources/application.yaml` 설정에 따라 외부 DB와 OpenAI 호출 없이 수행되도록 구성되어 있습니다.
 - Chrome 확장 프로그램의 API 서버 주소는 `extension/background.js`의 `API_BASE_URL`에 정의되어 있습니다.
 
